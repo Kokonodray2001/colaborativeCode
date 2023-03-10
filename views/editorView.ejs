@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/slate/bootstrap.min.css"
+    />
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <title>Code Editor</title>
+  </head>
+  <body>
+  
+  
+    <div class="container" style="display: flex; margin: 10px; width: 100%;">
+      <div class="sidebar" style="width: 200px;">
+        <label style="display: inline;"><h3><i class="fa-solid fa-users"></i> Users</h3></label>
+        <table class="table table-striped table-responsive">
+          <tr>
+            <td><i class="fa-sharp fa-solid fa-user"></i>  User1</td>
+          </tr>
+          <tr>
+            <td><i class="fa-sharp fa-solid fa-user"></i>  User2</td>
+          </tr>
+          <tr>
+            <td><i class="fa-sharp fa-solid fa-user"></i>  User3</td>
+          </tr>
+        </table>
+        <select class="form-select" aria-label="Default select example">
+          <option selected>Open this select menu</option>
+          <option value="1">One</option>
+          <option value="2">Two</option>
+          <option value="3">Three</option>
+        </select>
+         
+        <button type="button" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Id</button>
+        <button type="button" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>
+      </div>
+      <div class="editor" style=" margin-left: 10%; width: 100%;">
+        <label style="display: flex ; align-items: center; background-color: black;"><h3>-Editor-<i class="fa-solid fa-code"></i></h3></label>
+        
+        <textarea class="form-control rounded-0" id="Code" rows="40" 
+         style="font-family: monospace; background-color: #343333; color: azure;"></textarea>
+      </div>
+      
+      <script>
+        const socket =  io('http://localhost:3000')
+       
+        var myTextArea =  document.getElementById('Code');
+        
+        socket.on("connect",()=>{
+          var id =  socket.id;
+       //   myTextArea.textContent = 'the code is '+id;
+          //joinng  a coustom room
+          socket.emit('join-room','test-room');
+
+          //sending message from the client to the server
+         socket.emit('send-message','hello to all room user','test-room');
+          
+       //   socket.emit('room-message','hello','test-room');
+         socket.on('recived-message',(message)=>{
+          myTextArea.value = message;
+         })
+         })
+
+         myTextArea.addEventListener('input', () => {
+          //console.log('Textarea input changed!');
+          socket.emit('send-message',myTextArea.value,'test-room');
+
+        }); 
+        
+    </script>
+      
+  </body>
+</html>
