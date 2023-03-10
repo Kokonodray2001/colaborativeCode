@@ -22,12 +22,13 @@ io.on('connection',(socket)=>{ //  socket is the client and io is the server
             socket.broadcast.emit('recived-message',message)
         }
         else
-            socket.to(room).emit('recived-message',message);
+            socket.to(room).emit('recived-message',message); //  emiting the message to all the room members
         //socket.broadcast.emit('recived-message',"recived from socket id " + socket.id);//to broadcast message to all the connected socket from the given socket
         
     })
-    socket.on('join-room',(room)=>{
-        socket.join(room);
+    socket.on('join-room',(room,userName)=>{
+        socket.join(room); // first the user should join the room so that it also recive teh io emit
+        io.to(room).emit('add-user',userName);
     })  
    
 

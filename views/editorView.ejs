@@ -21,8 +21,8 @@
     <div class="container" style="display: flex; margin: 10px; width: 100%;">
       <div class="sidebar" style="width: 200px;">
         <label style="display: inline;"><h3><i class="fa-solid fa-users"></i> Users</h3></label>
-        <table class="table table-striped table-responsive">
-          <tr>
+        <table class="table table-striped table-responsive" id="userTable">
+          <!-- <tr>
             <td><i class="fa-sharp fa-solid fa-user"></i>  User1</td>
           </tr>
           <tr>
@@ -30,7 +30,7 @@
           </tr>
           <tr>
             <td><i class="fa-sharp fa-solid fa-user"></i>  User3</td>
-          </tr>
+          </tr> -->
         </table>
         <select class="form-select" aria-label="Default select example">
           <option selected>Open this select menu</option>
@@ -54,24 +54,33 @@
        
         var myTextArea =  document.getElementById('Code');
         
-        socket.on("connect",()=>{
+        socket.on("connect",()=>{ //  client connecting to a room
           var id =  socket.id;
-       //   myTextArea.textContent = 'the code is '+id;
+       
           //joinng  a coustom room
-          socket.emit('join-room','test-room');
+          socket.emit('join-room','test-room','RAM');
 
-          //sending message from the client to the server
-         socket.emit('send-message','hello to all room user','test-room');
           
        //   socket.emit('room-message','hello','test-room');
+
+       //receving the message emited from the server 
          socket.on('recived-message',(message)=>{
           myTextArea.value = message;
          })
+
+         socket.on('add-user',(userName)=>{
+            const table = document.getElementById('userTable');
+            var trow =  document.createElement('tr');
+            var tdata =  document.createElement('td');
+            tdata.textContent = userName;
+            trow.appendChild(tdata);
+            table.appendChild(trow);
+          })
          })
 
          myTextArea.addEventListener('input', () => {
           //console.log('Textarea input changed!');
-          socket.emit('send-message',myTextArea.value,'test-room');
+          socket.emit('send-message',myTextArea.value,'test-room'); //  sending message to tthe server
 
         }); 
         
