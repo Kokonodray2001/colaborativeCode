@@ -1,7 +1,14 @@
+require('dotenv').config();
+const mongoose = require('mongoose');
 const {instrument} =  require('@socket.io/admin-ui');
 var express =  require('express');
 const { Socket } = require('socket.io');
+const { config } = require('dotenv');
 var router =  express.Router();
+var userModel =  require('../model/userModel');
+
+var roomID ='no-room-assigned';
+
 var io =  require('socket.io')(3000,{
     cors :{
         origin :['https://admin.socket.io' , 'http://localhost:5000'],
@@ -11,6 +18,11 @@ var io =  require('socket.io')(3000,{
     }   
     
 });
+
+//connect to mongo
+mongoose.connect(process.env.Uri,{useNewUrlParser :  true},mongoose.set('strictQuery',true)).then(()=>console.log("Connected Mongo")).catch(err=>console.log(err));
+
+
 //connection to socket
 io.on('connection',(socket)=>{ //  socket is the client and io is the server
     
@@ -28,6 +40,11 @@ io.on('connection',(socket)=>{ //  socket is the client and io is the server
     })
     socket.on('join-room',(room,userName)=>{
         socket.join(room); // first the user should join the room so that it also recive teh io emit
+        roomID =  room;
+        const newRoomuser  = new userModel({name :  userName , roomId : room});
+        newRoomuser.save().then(()=>console.log("saved")).catch(err=>console.log(err));
+        
+    //    console.log(currentUser);
         io.to(room).emit('add-user',userName);
     })  
    
@@ -39,8 +56,22 @@ instrument(io, {
     mode: "development",
   });
 
-router.get('/',(req,res)=>{
-    res.render('editorView');
+router.get('/',async (req,res)=>{
+    try {
+    
+        const currentUser = await userModel.find({roomId : roomID});
+         console.log(currentUser.length)
+        // currentUser.forEach(element => {
+        //    console.log(element.name);
+        // });
+        if(currentUser.length == 0 )
+            currentUser.push({name : ''});
+        res.render('editorView',{users : currentUser});
+        
+    } catch (error) {
+        res.status(500).send(error);
+    }
+    
    
 });
 //instrument(io,{auth :false});
