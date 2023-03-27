@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://bootswatch.com/5/slate/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div
+      class="container"
+      style="
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 1000px;
+      "
+    >
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          height: 450px;
+          width: 450px;
+          background-color: rgb(52, 51, 51);
+        "
+      >
+        <h1
+          style="
+            background-color: black;
+            height: fit-content;
+            width: 90%;
+            border-radius: 10%;
+            padding: 5px;
+            margin: 5px;
+            margin-bottom: 120px;
+            margin-left: 25px;
+          "
+        >
+          <i class="fa-brands fa-kickstarter" style="font-size: 50px"></i>
+          KODE
+        </h1>
+        <h6 style="margin-left: 30px">Join the room and code</h6>
+        <form
+          action="/soc"
+          method="post"
+          class="form-group form-check"
+          style="display: flex; flex-direction: column"
+        >
+          <input
+            id="enterRoomId"
+            name="enterRoomId"
+            type="text"
+            placeholder="ROOM-ID"
+            style="width: 80%; margin: 5px"
+            value="<%= data.newRoomId %>"
+          />
+
+          <input
+            id="enterUserName"
+            name="enterUserName"
+            type="text"
+            placeholder="USERNAME"
+            style="width: 80%; margin: 5px"
+          />
+          <button
+            type="submit"
+            method="post"
+            id="join-room"
+            class="btn btn-success"
+            fdprocessedid="g0xmm6"
+            style="margin-left: 36%; margin-right: 38%"
+          >
+            join-room
+          </button>
+        </form>
+        <p style="margin-left: 50%">or</p>
+        <a href="http://localhost:5000/genId" style="margin-left: 38%"
+          ><button
+            type="button"
+            class="btn btn-outline-light"
+            fdprocessedid="xt1o7o"
+          >
+            Create Room
+          </button></a
+        >
+      </div>
+    </div>
+  </body>
+</html>

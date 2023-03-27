@@ -45,7 +45,7 @@
         </select>
          
         <button type="button" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Id</button>
-        <button type="button" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>
+       <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a>
       </div>
       <div class="editor" style=" margin-left: 10%; width: 100%;">
         <label style="display: flex ; align-items: center; background-color: black;"><h3>-Editor-<i class="fa-solid fa-code"></i></h3></label>
@@ -58,15 +58,13 @@
         const socket =  io('http://localhost:3000')
        
         var myTextArea =  document.getElementById('Code');
-        
+        var btnLeave =  document.getElementById('leave-room');
+
         socket.on("connect",()=>{ //  client connecting to a room
           var id =  socket.id;
        
           //joinng  a coustom room
-          socket.emit('join-room','test-room1','newUser');
-
-          
-       //   socket.emit('room-message','hello','test-room');
+          socket.emit('join-room');
 
        //receving the message emited from the server 
          socket.on('recived-message',(message)=>{
@@ -83,6 +81,20 @@
             table.appendChild(trow);
           
           })
+          
+          socket.on('remove-user',(userName)=>{
+            const table =  document.getElementById('userTable');
+            const td = document.getElementsByTagName('tr'); 
+            console.log('removed');
+            // console.log(td.length);
+            // for(var i =0 ; i <tr.length ;i++ ){
+            //   // if(td[i].innerHTML == userName){
+            //   //   table.deleteRow(i);
+            //   //   break;
+            //   // }
+            //     console.log(td[i].innerHTML);
+            // }
+          })
          })
 
          myTextArea.addEventListener('input', () => {
@@ -90,7 +102,10 @@
           socket.emit('send-message',myTextArea.value,'test-room1'); //  sending message to the server
 
         }); 
-        
+         btnLeave.addEventListener('click',()=>{
+          socket.emit('disconnect');
+         })
+
     </script>
       
   </body>

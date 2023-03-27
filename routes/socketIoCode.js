@@ -7,7 +7,8 @@ const { config } = require('dotenv');
 var router =  express.Router();
 var userModel =  require('../model/userModel');
 
-var roomID ='no-room-assigned';
+var roomID = '';
+var uName = '';
 
 var io =  require('socket.io')(3000,{
     cors :{
@@ -38,16 +39,26 @@ io.on('connection',(socket)=>{ //  socket is the client and io is the server
         //socket.broadcast.emit('recived-message',"recived from socket id " + socket.id);//to broadcast message to all the connected socket from the given socket
         
     })
-    socket.on('join-room',(room,userName)=>{
-        socket.join(room); // first the user should join the room so that it also recive teh io emit
-        roomID =  room;
-        const newRoomuser  = new userModel({name :  userName , roomId : room});
-        newRoomuser.save().then(()=>console.log("saved")).catch(err=>console.log(err));
+     socket.on('join-room',()=>{
+         socket.join(roomID); // first the user should join the room so that it also recive teh io emit
+         const newRoomuser  = new userModel({name :  uName , roomId : roomID});
+         newRoomuser.save().then(()=>console.log("saved")).catch(err=>console.log(err));
         
-    //    console.log(currentUser);
-        io.to(room).emit('add-user',userName);
-    })  
-   
+         io.to(roomID).emit('add-user',uName);
+     })  
+    
+    socket.on('disconnect',async ()=>{
+        console.log('disconnecting');
+        try {
+            var result = await userModel.deleteOne({name: uName , roomId :roomID});
+            console.log('deleted'+uName);
+            
+        } catch (error) {
+            console.log(err);
+        }
+       
+
+    })
 
 })
 
@@ -56,14 +67,12 @@ instrument(io, {
     mode: "development",
   });
 
-router.get('/',async (req,res)=>{
-    try {
-    
+router.post('/',async (req,res)=>{
+    try {      
+        roomID = req.body.enterRoomId;
+        uName = req.body.enterUserName; 
         const currentUser = await userModel.find({roomId : roomID});
          console.log(currentUser.length)
-        // currentUser.forEach(element => {
-        //    console.log(element.name);
-        // });
         if(currentUser.length == 0 )
             currentUser.push({name : ''});
         res.render('editorView',{users : currentUser});
