@@ -7,8 +7,7 @@ const { config } = require('dotenv');
 var router =  express.Router();
 var userModel =  require('../model/userModel');
 
-var roomID = '';
-var uName = '';
+
 
 var io =  require('socket.io')(3000,{
     cors :{
@@ -30,35 +29,35 @@ io.on('connection',(socket)=>{ //  socket is the client and io is the server
     console.log("connected");
     //listening to the client event
 
-    socket.on('join-room',()=>{
-        socket.join(roomID); // first the user should join the room so that it also recive teh io emit
-        const newRoomuser  = new userModel({name :  uName , roomId : roomID});
+    socket.on('join-room',(roomId,userName)=>{
+        socket.join(roomId); // first the user should join the room so that it also recive teh io emit
+        const newRoomuser  = new userModel({name :  userName , roomId : roomId});
         newRoomuser.save().then(()=>console.log("saved")).catch(err=>console.log(err));
        
-        io.to(roomID).emit('add-user',uName);
+        io.to(roomId).emit('add-user',userName);
     })  
 
    //sending message
-    socket.on('send-message',(message)=>{ //  recive from the client 
+    socket.on('send-message',(roomId,message)=>{ //  recive from the client 
         //io.emit('recived-message',"broadcasted") // io.emit send the message to all the socket connect to the server
         // if(roomID == ''){
         //     socket.broadcast.emit('recived-message',message)
         // }
         // else
-            socket.to(roomID).emit('recived-message',message); //  emiting the message to all the room members
+            socket.to(roomId).emit('recived-message',message); //  emiting the message to all the room members
         //socket.broadcast.emit('recived-message',"recived from socket id " + socket.id);//to broadcast message to all the connected socket from the given socket
         
     })
 
     //disconnect
-    socket.on('disconnect',async ()=>{
+    socket.on('userDisconnect',async (roomID,userName)=>{
         console.log('disconnecting');
         try {
-            var result = await userModel.deleteOne({name: uName , roomId :roomID});
-            console.log('deleted'+uName);
+            await userModel.deleteOne({ roomId :roomID ,name: userName});
+            console.log('deleted '+ userName);
             
         } catch (error) {
-            console.log(err);
+            console.log(error);
         }
        
 
@@ -73,8 +72,8 @@ instrument(io, {
 
 router.post('/',async (req,res)=>{
     try {      
-        roomID = req.body.enterRoomId;
-        uName = req.body.enterUserName; 
+        var roomID = req.body.enterRoomId;
+        var uName = req.body.enterUserName; 
         const currentUser = await userModel.find({roomId : roomID});
          console.log(currentUser.length)
         if(currentUser.length == 0 )
