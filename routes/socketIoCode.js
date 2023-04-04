@@ -29,24 +29,28 @@ io.on('connection',(socket)=>{ //  socket is the client and io is the server
     
     console.log("connected");
     //listening to the client event
-    socket.on('send-message',(message,room)=>{ //  recive from the client 
+
+    socket.on('join-room',()=>{
+        socket.join(roomID); // first the user should join the room so that it also recive teh io emit
+        const newRoomuser  = new userModel({name :  uName , roomId : roomID});
+        newRoomuser.save().then(()=>console.log("saved")).catch(err=>console.log(err));
+       
+        io.to(roomID).emit('add-user',uName);
+    })  
+
+   //sending message
+    socket.on('send-message',(message)=>{ //  recive from the client 
         //io.emit('recived-message',"broadcasted") // io.emit send the message to all the socket connect to the server
-        if(room == ''){
-            socket.broadcast.emit('recived-message',message)
-        }
-        else
-            socket.to(room).emit('recived-message',message); //  emiting the message to all the room members
+        // if(roomID == ''){
+        //     socket.broadcast.emit('recived-message',message)
+        // }
+        // else
+            socket.to(roomID).emit('recived-message',message); //  emiting the message to all the room members
         //socket.broadcast.emit('recived-message',"recived from socket id " + socket.id);//to broadcast message to all the connected socket from the given socket
         
     })
-     socket.on('join-room',()=>{
-         socket.join(roomID); // first the user should join the room so that it also recive teh io emit
-         const newRoomuser  = new userModel({name :  uName , roomId : roomID});
-         newRoomuser.save().then(()=>console.log("saved")).catch(err=>console.log(err));
-        
-         io.to(roomID).emit('add-user',uName);
-     })  
-    
+
+    //disconnect
     socket.on('disconnect',async ()=>{
         console.log('disconnecting');
         try {
@@ -75,7 +79,7 @@ router.post('/',async (req,res)=>{
          console.log(currentUser.length)
         if(currentUser.length == 0 )
             currentUser.push({name : ''});
-        res.render('editorView',{users : currentUser});
+        res.render('editorView',{users : currentUser,roomId : roomID,userName :uName});
         
     } catch (error) {
         res.status(500).send(error);
