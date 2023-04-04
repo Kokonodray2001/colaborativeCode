@@ -46,7 +46,8 @@
         </select>
          
         <button type="button" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Id</button>
-       <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a>
+       <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a> 
+       <!-- <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>  -->
       </div>
       <div class="editor" style=" margin-left: 10%; width: 100%;">
         <label style="display: flex ; align-items: center; background-color: black;"><h3>-Editor-<i class="fa-solid fa-code"></i></h3></label>
@@ -60,6 +61,10 @@
         localStorage.setItem('roomID','hi');
         console.log(localStorage.getItem('roomID'));
 
+        // getting room id and username in browser
+        const roomId = '<%= roomId %>';
+        const userName = '<%= userName %>';
+
         const socket =  io('http://localhost:3000')
        
         var myTextArea =  document.getElementById('Code');
@@ -67,18 +72,12 @@
 
         socket.on("connect",()=>{//  client connecting to a room
           var id =  socket.id;
-          // getting room id and username in browser
-          const roomId = '<%= roomId %>';
-          const userName = '<%= userName %>';
+          
        
-        //   //joinng  a coustom room
-          socket.emit('join-room');
+        //  joinng  a coustom room
+          socket.emit('join-room',roomId,userName);
 
-       //receving the message emited from the server 
-         socket.on('recived-message',(message)=>{
-          myTextArea.value = message;
-         })
-
+        //  adding user
          socket.on('add-user',(userName)=>{
           const table = document.getElementById('userTable');
           
@@ -89,7 +88,12 @@
             table.appendChild(trow);
           
           })
-          
+           //receving the message emited from the server 
+        socket.on('recived-message',(message)=>{
+          myTextArea.value = message;
+         })
+
+         //removing users
           socket.on('remove-user',(userName)=>{
             const table =  document.getElementById('userTable');
             const td = document.getElementsByTagName('tr'); 
@@ -99,11 +103,14 @@
 
          myTextArea.addEventListener('input', () => {
           //console.log('Textarea input changed!');
-          socket.emit('send-message',myTextArea.value); //  sending message to the server
-
+           //  sending message to the server
+          socket.emit('send-message',roomId,myTextArea.value);
         }); 
+       
+         //disconnect
          btnLeave.addEventListener('click',()=>{
-          socket.emit('disconnect');
+          console.log('clicked');
+          socket.emit('userDisconnect',roomId,userName);
          })
 
     </script>
