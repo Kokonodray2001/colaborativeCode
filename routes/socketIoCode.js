@@ -50,12 +50,13 @@ io.on('connection',(socket)=>{ //  socket is the client and io is the server
     })
 
     //disconnect
-    socket.on('userDisconnect',async (roomID,userName)=>{
+    socket.on('userDisconnect',async (roomId,userName)=>{
         console.log('disconnecting');
         try {
-            await userModel.deleteOne({ roomId :roomID ,name: userName});
+            await userModel.deleteOne({ roomId :roomId ,name: userName});
             console.log('deleted '+ userName);
-            
+            const user = await userModel.find({roomId : roomId});
+            socket.to(roomId).emit('remove-user',user);    
         } catch (error) {
             console.log(error);
         }

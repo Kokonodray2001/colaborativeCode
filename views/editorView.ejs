@@ -46,8 +46,8 @@
         </select>
          
         <button type="button" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Id</button>
-       <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a> 
-       <!-- <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>  -->
+       <!-- <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a>  -->
+       <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>  
       </div>
       <div class="editor" style=" margin-left: 10%; width: 100%;">
         <label style="display: flex ; align-items: center; background-color: black;"><h3>-Editor-<i class="fa-solid fa-code"></i></h3></label>
@@ -94,10 +94,25 @@
          })
 
          //removing users
-          socket.on('remove-user',(userName)=>{
+          socket.on('remove-user',(user)=>{
             const table =  document.getElementById('userTable');
-            const td = document.getElementsByTagName('tr'); 
             console.log('removed');
+            //updating the table 
+            var rowcount =  table.rows.length;
+            for(var i = rowcount-1 ;i >=0;i--)
+              table.deleteRow(i);
+            user.forEach(element => {
+              
+            var trow =  document.createElement('tr');
+            var tdata =  document.createElement('td');
+            tdata.textContent = element.name;
+            trow.appendChild(tdata);
+            table.appendChild(trow);
+
+            });
+           // console.log(user);
+
+
           })
          })
 
@@ -105,13 +120,14 @@
           //console.log('Textarea input changed!');
            //  sending message to the server
           socket.emit('send-message',roomId,myTextArea.value);
-        }); 
+        });
        
          //disconnect
          btnLeave.addEventListener('click',()=>{
           console.log('clicked');
           socket.emit('userDisconnect',roomId,userName);
-         })
+          window.location.href = "/";
+        })
 
     </script>
       
