@@ -4,6 +4,17 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <!-- Include CodeMirror CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.css">
+<!-- Include CodeMirror theme CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/theme/monokai.min.css">
+<!-- Include CodeMirror JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.js"></script>
+<!-- Include CodeMirror mode JavaScript -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/clike/clike.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/python/python.min.js" ></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/java/java.min.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
@@ -38,25 +49,43 @@
             <td><i class="fa-sharp fa-solid fa-user"></i>  User3</td>
           </tr> -->
         </table>
-        <select class="form-select" aria-label="Default select example">
-          <option selected>Open this select menu</option>
-          <option value="1">One</option>
-          <option value="2">Two</option>
-          <option value="3">Three</option>
+        <select id="languageSelect" class="form-select" aria-label="Default select example">
+          <option selected value="text">Normal text</option>
+          <option value="text/x-c++src">C/C++</option>
+          <option value="text/x-java">Java</option>
+          <option value="javascript">JavaScript</option>
+          <option value="python">python</option>
         </select>
          
         <button type="button" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Id</button>
        <!-- <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a>  -->
        <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>  
       </div>
-      <div class="editor" style=" margin-left: 10%; width: 100%;">
+      <div class="editor" style=" margin-left: 10%; width: 100%; ">
         <label style="display: flex ; align-items: center; background-color: black;"><h3>-Editor-<i class="fa-solid fa-code"></i></h3></label>
-        
-        <textarea class="form-control rounded-0" id="Code" rows="40" 
-         style="font-family: monospace; background-color: #343333; color: azure;"></textarea>
+        <!-- style="font-family: monospace; background-color: #343333; color: azure;"   -->
+        <textarea class="form-control rounded-0" id="Code"></textarea>
       </div>
        
       <script>
+
+      var myTextArea = document.getElementById("Code");
+      // Initialize the CodeMirror editor
+      var myCodeMirror = CodeMirror.fromTextArea(myTextArea, {
+      mode: "text",
+      theme: "monokai"
+      });
+      myCodeMirror.setSize(1010, 1000);
+
+      //languageSelect
+      var languageSelect = document.getElementById('languageSelect');
+      languageSelect.addEventListener('change',()=>{
+        slectedMode = languageSelect.value;
+       // console.log(slectedMode);
+        myCodeMirror.setOption('mode',slectedMode);
+        
+      })
+
         //local storage 
         localStorage.setItem('roomID','hi');
         console.log(localStorage.getItem('roomID'));
@@ -90,8 +119,8 @@
           })
            //receving the message emited from the server 
         socket.on('recived-message',(message)=>{
-          myTextArea.value = message;
-         })
+         myCodeMirror.setValue(message);
+        })
 
          //removing users
           socket.on('remove-user',(user)=>{
@@ -115,12 +144,24 @@
 
           })
          })
+    
+        
+          myCodeMirror.on("keyup", function() {        //detect if key is pressed
+          var updatedContent = myCodeMirror.getValue();
+          socket.emit('send-message',roomId,updatedContent);
+          });
 
-         myTextArea.addEventListener('input', () => {
-          //console.log('Textarea input changed!');
-           //  sending message to the server
-          socket.emit('send-message',roomId,myTextArea.value);
-        });
+          // Add an onchange listener to the editor
+          myCodeMirror.on("keydown", function() {   //detect enter key
+          var updatedContent = myCodeMirror.getValue();
+          socket.emit('send-message',roomId,updatedContent);
+          });
+
+        //  myTextArea.addEventListener('input', () => {
+        //   //console.log('Textarea input changed!');
+        //    //  sending message to the server
+        //   socket.emit('send-message',roomId,myTextArea.value);
+        // });
        
          //disconnect
          btnLeave.addEventListener('click',()=>{
