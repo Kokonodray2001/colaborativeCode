@@ -57,7 +57,7 @@
           <option value="python">python</option>
         </select>
          
-        <button type="button" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Id</button>
+        <button type="button" id="copy-roomid" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Id</button>
        <!-- <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a>  -->
        <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>  
       </div>
@@ -98,6 +98,7 @@
        
         var myTextArea =  document.getElementById('Code');
         var btnLeave =  document.getElementById('leave-room');
+        var btnCopyId =  document.getElementById('copy-roomid');
 
         socket.on("connect",()=>{//  client connecting to a room
           var id =  socket.id;
@@ -170,6 +171,18 @@
           window.location.href = "/";
         })
 
+        //copyId
+        btnCopyId.addEventListener("click",()=>{
+          console.log('clicked');
+          var roomIdElement =  document.createElement('input');
+          roomIdElement.value = roomId;
+          document.body.appendChild(roomIdElement);
+          roomIdElement.select();
+          document.execCommand("copy");
+          document.body.removeChild(roomIdElement);
+          alert("Value copied to clipboard!");
+        })
+        
     </script>
       
   </body>
