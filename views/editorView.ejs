@@ -227,7 +227,7 @@
         const response = await axios.post('/compile', JSON.stringify({
         code,
         language_id: languageId,
-        stdin: inputValue
+        input: inputValue
         }), {
         headers: {
           'Content-Type': 'application/json'

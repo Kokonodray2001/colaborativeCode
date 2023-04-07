@@ -17,7 +17,7 @@ router.post('/',async (req,res)=>{
         // "stdin": input,
         "source_code": code ,//"#include <iostream>\n#include <string>\n\nusing namespace std;\n\nint main() {\n    string name;\n    cout << \"Please enter your name: \";\n    cin >> name;\n    cout << \"Hello, \" << name << \"!\" << endl;\n\n    int num1, num2;\n    cout << \"Please enter two numbers: \";\n    cin >> num1 >> num2;\n    int sum = num1 + num2;\n    cout << \"The sum of \" << num1 << \" and \" << num2 << \" is \" << sum << endl;\n\n    return 0;\n}",
             "language_id": language_id,
-            "stdin": "10 20"
+            "stdin": input
           
     };
     try {
@@ -25,7 +25,7 @@ router.post('/',async (req,res)=>{
     headers: {
       'Content-Type': 'application/json',
       'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
-      'X-RapidAPI-Key': '1c1032c4admsh017b04fbc8680a4p173177jsn95a4c2a62b1c'
+      'X-RapidAPI-Key': process.env.compilerKey 
     }
   });
   submissionToken = response.data.token;
@@ -35,20 +35,24 @@ router.post('/',async (req,res)=>{
     }
 
      const getResultUrl = `https://judge0.p.rapidapi.com/submissions/${submissionToken}?base64_encoded=true&fields=stdout`;
-
-     setTimeout(async () => {
-       const resultResponse = await axios.get(getResultUrl, {
-         headers: {
-           'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
-           'X-RapidAPI-Key':  '1c1032c4admsh017b04fbc8680a4p173177jsn95a4c2a62b1c'
-
-         }
-       });
-  
-       const output = Buffer.from(resultResponse.data.stdout, 'base64').toString('utf-8');
-       console.log(output);
-  
-       res.json({ output});
-     }, 5000); // Wait 5 seconds before getting the result
+      try {
+        setTimeout(async () => {
+          const resultResponse = await axios.get(getResultUrl, {
+            headers: {
+              'X-RapidAPI-Host': 'judge0-ce.p.rapidapi.com',
+              'X-RapidAPI-Key':  process.env.compilerKey 
+   
+            }
+          });
+     
+          const output = Buffer.from(resultResponse.data.stdout, 'base64').toString('utf-8');
+          console.log(output);
+     
+          res.json({ output});
+        }, 5000); // Wait 5 seconds before getting the result    
+      } catch (error) {
+          res.json({error});
+      }
+    
   });
 module.exports = router;
