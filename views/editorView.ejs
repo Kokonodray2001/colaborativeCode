@@ -4,17 +4,23 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <!-- Include CodeMirror CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.css">
-<!-- Include CodeMirror theme CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/theme/monokai.min.css">
-<!-- Include CodeMirror JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.js"></script>
-<!-- Include CodeMirror mode JavaScript -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/clike/clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/python/python.min.js" ></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/java/java.min.js"></script>
+    <!-- Include CodeMirror CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.css"
+    />
+    <!-- Include CodeMirror theme CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/theme/monokai.min.css"
+    />
+    <!-- Include CodeMirror JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.js"></script>
+    <!-- Include CodeMirror mode JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/clike/clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.3/mode/java/java.min.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
@@ -25,230 +31,307 @@
     />
     <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
-    
+
     <title>Code Editor</title>
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden;
+      }
+
+      .container {
+        display: flex;
+        width: 100%;
+        height: 100vh;
+      }
+
+      .sidebar {
+        width: 200px;
+        padding: 10px;
+        background-color: #2b2b2b;
+        color: white;
+        overflow-y: auto;
+      }
+
+      .editor {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+      }
+
+      .compiler {
+        width: 300px;
+        padding: 10px;
+        background-color: #2b2b2b;
+        color: white;
+        overflow-y: auto;
+      }
+
+      .editor label,
+      .compiler label {
+        display: flex;
+        align-items: center;
+        background-color: black;
+        padding: 5px;
+        color: white;
+        margin-bottom: 10px;
+      }
+
+      .editor textarea,
+      .compiler textarea {
+        width: 100%;
+        resize: none;
+      }
+
+      .compiler button {
+        width: 100%;
+        margin-bottom: 10px;
+      }
+    </style>
   </head>
   <body>
-  
-  
-    <div class="container" style="display: flex; margin: 10px; width: 100%;">
-      <div class="sidebar" style="width: 200px;">
-        <label style="display: inline;"><h3><i class="fa-solid fa-users"></i> Users</h3></label>
+    <div class="container">
+      <div class="sidebar">
+        <label style="display: inline">
+          <h3><i class="fa-solid fa-users"></i> Users</h3>
+        </label>
         <table class="table table-striped table-responsive" id="userTable">
-          <% users.forEach(element => { %>
-            <tr>
-            <td> <%=element.name%> </td>  
-            </tr>
-        <%  }); %>
-          <!-- <tr>
-            <td><i class="fa-sharp fa-solid fa-user"></i>  User1</td>
-          </tr>
+          <% users.forEach((element) => { %>
           <tr>
-            <td><i class="fa-sharp fa-solid fa-user"></i>  User2</td>
+            <td><%=element.name%></td>
           </tr>
-          <tr>
-            <td><i class="fa-sharp fa-solid fa-user"></i>  User3</td>
-          </tr> -->
+          <% }); %>
         </table>
-        <select id="languageSelect" class="form-select" aria-label="Default select example" style="width : 150px">
+        <select
+          id="languageSelect"
+          class="form-select"
+          aria-label="Default select example"
+        >
           <option selected value="text">Normal text</option>
           <option value="text/x-c++src">C/C++</option>
           <option value="text/x-java">Java</option>
           <option value="javascript">JavaScript</option>
           <option value="python">python</option>
         </select>
-         
-        <button type="button" id="copy-roomid" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-top:600px ;">Copy Room Id</button>
-       <!-- <a href="http://localhost:5000"> <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button></a>  -->
-       <button type="button" id="leave-room" class="btn btn-danger" fdprocessedid="g0xmm6"  >Leave Room</button>  
+
+        <button
+          type="button"
+          id="copy-roomid"
+          class="btn btn-success"
+          fdprocessedid="ab1lrr"
+          style="margin-top: 10px"
+        >
+          Copy Room Id
+        </button>
+        <button
+          type="button"
+          id="leave-room"
+          class="btn btn-danger"
+          fdprocessedid="g0xmm6"
+        >
+          Leave Room
+        </button>
       </div>
-      <div class="editor" style=" margin-left: 10%; width: 100%; ">
-        <label style="display: flex ; align-items: center; background-color: black;"><h3>-Editor-<i class="fa-solid fa-code"></i></h3></label>
-        <!-- style="font-family: monospace; background-color: #343333; color: azure;"   -->
+      <div class="editor">
+        <label
+          style="
+            display: flex;
+            align-items: center;
+            background-color: black;
+            color: white;
+          "
+          ><h3>-Editor-<i class="fa-solid fa-code"></i></h3></label
+        >
         <textarea class="form-control rounded-0" id="Code"></textarea>
       </div>
-      <div class="compiler" style="display: flex; flex-direction: column; margin-left: 10%;">
+      <div class="compiler">
         <label for="input">INPUT</label>
-        <textarea name="input" id="input" cols="30" rows="10" style="width: 500px; height: 400px; margin-bottom: 5%;"></textarea>
-        <button type="button" id="run-code" class="btn btn-success" fdprocessedid="ab1lrr" style="margin-bottom:10px; width: 25%;"><i class="fa-solid fa-play"></i> RUN</i></button>
+        <textarea
+          name="input"
+          id="input"
+          cols="30"
+          rows="10"
+          style="margin-bottom: 5%"
+        ></textarea>
+        <button
+          type="button"
+          id="run-code"
+          class="btn btn-success"
+          fdprocessedid="ab1lrr"
+          style="margin-bottom: 10px"
+        >
+          <i class="fa-solid fa-play"></i> RUN</i>
+        </button>
         <label for="output">OUTPUT</label>
-        <textarea name="output" id="output" cols="30" rows="10"  style="width: 500px; height: 400px"></textarea>
+        <textarea name="output" id="output" cols="30" rows="10"></textarea>
       </div>
-       
-      <script>
+    </div>
 
+    <script>
       var myTextArea = document.getElementById("Code");
       // Initialize the CodeMirror editor
       var myCodeMirror = CodeMirror.fromTextArea(myTextArea, {
-      mode: "text",
-      theme: "monokai"
+        mode: "text",
+        theme: "monokai",
       });
-      myCodeMirror.setSize(1010, 1000);
+      myCodeMirror.setSize("100%", "600px");
 
       //languageSelect
-      var languageSelect = document.getElementById('languageSelect');
-      languageSelect.addEventListener('change',()=>{
+      var languageSelect = document.getElementById("languageSelect");
+      languageSelect.addEventListener("change", () => {
         slectedMode = languageSelect.value;
-       // console.log(slectedMode);
-        myCodeMirror.setOption('mode',slectedMode);
-        
-      })
+        // console.log(slectedMode);
+        myCodeMirror.setOption("mode", slectedMode);
+      });
 
-        //local storage 
-        localStorage.setItem('roomID','hi');
-        console.log(localStorage.getItem('roomID'));
+      //local storage
+      localStorage.setItem("roomID", "hi");
+      console.log(localStorage.getItem("roomID"));
 
-        // getting room id and username in browser
-        const roomId = '<%= roomId %>';
-        const userName = '<%= userName %>';
+      // getting room id and username in browser
+      const roomId = "<%= roomId %>";
+      const userName = "<%= userName %>";
 
-        const socket =  io('http://localhost:3000')
-       
-        var myTextArea =  document.getElementById('Code');
-        var btnLeave =  document.getElementById('leave-room');
-        var btnCopyId =  document.getElementById('copy-roomid');
-        var btnRun =  document.getElementById('run-code');
+      const socket = io("http://localhost:3000");
 
-        socket.on("connect",()=>{//  client connecting to a room
-          var id =  socket.id;
-          
-       
+      var myTextArea = document.getElementById("Code");
+      var btnLeave = document.getElementById("leave-room");
+      var btnCopyId = document.getElementById("copy-roomid");
+      var btnRun = document.getElementById("run-code");
+
+      socket.on("connect", () => {
+        //  client connecting to a room
+        var id = socket.id;
+
         //  joinng  a coustom room
-          socket.emit('join-room',roomId,userName);
+        socket.emit("join-room", roomId, userName);
 
         //  adding user
-         socket.on('add-user',(userName)=>{
-          const table = document.getElementById('userTable');
-          
-            var trow =  document.createElement('tr');
-            var tdata =  document.createElement('td');
-            tdata.textContent = userName;
-            trow.appendChild(tdata);
-            table.appendChild(trow);
-          
-          })
-           //receving the message emited from the server 
-        socket.on('recived-message',(message)=>{
-         myCodeMirror.setValue(message);
-        })
+        socket.on("add-user", (userName) => {
+          const table = document.getElementById("userTable");
 
-         //removing users
-          socket.on('remove-user',(user)=>{
-            const table =  document.getElementById('userTable');
-            console.log('removed');
-            //updating the table 
-            var rowcount =  table.rows.length;
-            for(var i = rowcount-1 ;i >=0;i--)
-              table.deleteRow(i);
-            user.forEach(element => {
-              
-            var trow =  document.createElement('tr');
-            var tdata =  document.createElement('td');
+          var trow = document.createElement("tr");
+          var tdata = document.createElement("td");
+          tdata.textContent = userName;
+          trow.appendChild(tdata);
+          table.appendChild(trow);
+        });
+        //receving the message emited from the server
+        socket.on("recived-message", (message) => {
+          myCodeMirror.setValue(message);
+        });
+
+        //removing users
+        socket.on("remove-user", (user) => {
+          const table = document.getElementById("userTable");
+          console.log("removed");
+          //updating the table
+          var rowcount = table.rows.length;
+          for (var i = rowcount - 1; i >= 0; i--) table.deleteRow(i);
+          user.forEach((element) => {
+            var trow = document.createElement("tr");
+            var tdata = document.createElement("td");
             tdata.textContent = element.name;
             trow.appendChild(tdata);
             table.appendChild(trow);
-
-            });
-           // console.log(user);
-
-
-          })
-         })
-    
-        
-          myCodeMirror.on("keyup", function() {        //detect if key is pressed
-          var updatedContent = myCodeMirror.getValue();
-          socket.emit('send-message',roomId,updatedContent);
           });
+          // console.log(user);
+        });
+      });
 
-          // Add an onchange listener to the editor
-          myCodeMirror.on("keydown", function() {   //detect enter key
-          var updatedContent = myCodeMirror.getValue();
-          socket.emit('send-message',roomId,updatedContent);
-          });
+      myCodeMirror.on("keyup", function () {
+        //detect if key is pressed
+        var updatedContent = myCodeMirror.getValue();
+        socket.emit("send-message", roomId, updatedContent);
+      });
 
-        //  myTextArea.addEventListener('input', () => {
-        //   //console.log('Textarea input changed!');
-        //    //  sending message to the server
-        //   socket.emit('send-message',roomId,myTextArea.value);
-        // });
-       
-         //disconnect
-         btnLeave.addEventListener('click',()=>{
-          console.log('clicked');
-          socket.emit('userDisconnect',roomId,userName);
-          window.location.href = "/";
-        })
+      // Add an onchange listener to the editor
+      myCodeMirror.on("keydown", function () {
+        //detect enter key
+        var updatedContent = myCodeMirror.getValue();
+        socket.emit("send-message", roomId, updatedContent);
+      });
 
-        //copyId
-        btnCopyId.addEventListener("click",()=>{
-          console.log('clicked');
-          var roomIdElement =  document.createElement('input');
-          roomIdElement.value = roomId;
-          document.body.appendChild(roomIdElement);
-          roomIdElement.select();
-          document.execCommand("copy");
-          document.body.removeChild(roomIdElement);
-          alert("Value copied to clipboard!");
-        })
-        
+      //  myTextArea.addEventListener('input', () => {
+      //   //console.log('Textarea input changed!');
+      //    //  sending message to the server
+      //   socket.emit('send-message',roomId,myTextArea.value);
+      // });
 
+      //disconnect
+      btnLeave.addEventListener("click", () => {
+        console.log("clicked");
+        socket.emit("userDisconnect", roomId, userName);
+        window.location.href = "/";
+      });
 
-        // Compiler
+      //copyId
+      btnCopyId.addEventListener("click", () => {
+        console.log("clicked");
+        var roomIdElement = document.createElement("input");
+        roomIdElement.value = roomId;
+        document.body.appendChild(roomIdElement);
+        roomIdElement.select();
+        document.execCommand("copy");
+        document.body.removeChild(roomIdElement);
+        alert("Value copied to clipboard!");
+      });
 
-        btnRun.addEventListener('click',async ()=>{
-          var input = document.getElementById('input');
-          var output = document.getElementById('output');
-          
-          var inputValue = input.value;
-          var code =  myCodeMirror.getValue();
-          var languageId =0;
-          var slectedLang =languageSelect.value;
-          switch (slectedLang) {
-          case 'javascript':
+      // Compiler
+
+      btnRun.addEventListener("click", async () => {
+        var input = document.getElementById("input");
+        var output = document.getElementById("output");
+
+        var inputValue = input.value;
+        var code = myCodeMirror.getValue();
+        var languageId = 0;
+        var slectedLang = languageSelect.value;
+        switch (slectedLang) {
+          case "javascript":
             languageId = 29; // JavaScript language ID
             break;
-          case 'python':
+          case "python":
             languageId = 71; // Python language ID
             break;
-          case 'c':
+          case "c":
             languageId = 50; // C language ID
             break;
-          case 'text/x-c++src':
+          case "text/x-c++src":
             languageId = 54; // C++ language ID
             break;
-          case 'text/x-java':
+          case "text/x-java":
             languageId = 63; // java language ID
           default:
-            console.error('Invalid language selection');
-          return;
-  }
-        try {
-        const response = await axios.post('/compile', JSON.stringify({
-        code,
-        language_id: languageId,
-        input: inputValue
-        }), {
-        headers: {
-          'Content-Type': 'application/json'
+            console.error("Invalid language selection");
+            return;
         }
-     });
+        try {
+          const response = await axios.post(
+            "/compile",
+            JSON.stringify({
+              code,
+              language_id: languageId,
+              input: inputValue,
+            }),
+            {
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
 
-        output.value = response.data.output;
-      } catch (error) {
-        console.error(error);
-       }
+          output.value = response.data.output;
+        } catch (error) {
+          console.error(error);
+        }
 
-          console.log(JSON.stringify(code));
-          console.log(inputValue);  
-        })
-        
-       
-
-
+        console.log(JSON.stringify(code));
+        console.log(inputValue);
+      });
     </script>
-      
   </body>
 </html>
-<!-- 54-c++
-63-java -->
